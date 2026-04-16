@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曹家礼簿</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8dcc8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #8b0000;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ========== 左侧礼簿列表 ========== */
+        .sidebar { width: 240px; flex-shrink: 0; }
+
+        .sidebar-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.4em;
+            color: #8b0000;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-bottom: 2px solid #d4af37;
+        }
+
+        .sidebar-list { list-style: none; margin-bottom: 10px; }
+
+        .sidebar-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #fffef8;
+            border: 1px solid #e0d5c0;
+            flex-wrap: wrap;
+        }
+
+        .sidebar-item:hover { background: #fff5f5; border-color: #FF3636; }
+
+        .sidebar-item.active {
+            background: #fff5f5;
+            border-color: #FF3636;
+            color: #8b0000;
+            font-weight: bold;
+        }
+
+        .sidebar-item.theme-white.active {
+            background: #f8f8f8;
+            border-color: #666;
+            color: #333;
+        }
+
+        .sidebar-item-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .sidebar-item-date {
+            width: 100%;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .sidebar-item-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .sidebar-item-dot.red { background: #FF3636; }
+        .sidebar-item-dot.white { background: #ccc; border: 1px solid #999; }
+
+        .sidebar-item-actions { display: none; gap: 2px; }
+        .sidebar-item:hover .sidebar-item-actions { display: flex; }
+        .sidebar-item-actions button { background: none; border: none; cursor: pointer; font-size: 12px; padding: 2px 4px; border-radius: 3px; color: #666; }
+        .sidebar-item-actions button:hover { background: #f0e0e0; }
+        .sidebar-item-actions .btn-del:hover { color: #c00; }
+
+        .btn-new-book {
+            width: 100%;
+            padding: 8px;
+            border: 2px dashed #d4af37;
+            border-radius: 6px;
+            background: #fffef8;
+            color: #8b0000;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Ma Shan Zheng', cursive;
+            transition: all 0.2s;
+        }
+
+        .btn-new-book:hover { border-color: #8b0000; background: #fff5f5; }
+
+        /* ========== 右侧内容区 ========== */
+        .content { flex: 1; min-width: 0; }
+
+        /* ========== 登记表单 ========== */
+        .input-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .input-bar input { padding: 10px 12px; border: 2px solid #d4af37; border-radius: 8px; font-size: 18px; background: #fffef8; transition: border-color 0.3s; font-family: 'Ma Shan Zheng', cursive; }
+        .input-bar input:focus { outline: none; border-color: #8b0000; }
+        .input-bar .input-name { width: 140px; }
+        .input-bar .input-amount { width: 140px; }
+        .input-bar .input-remark { flex: 1; min-width: 120px; }
+        .input-bar .input-search { flex: 1; min-width: 120px; }
+
+        .btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: all 0.3s; font-family: 'Ma Shan Zheng', cursive; }
+        .btn-primary { background: linear-gradient(135deg, #8b0000, #a52a2a); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139,0,0,0.3); }
+        .btn-secondary { background: linear-gradient(135deg, #d4af37, #f0d060); color: #5a4a3a; }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212,175,55,0.3); }
+        .btn-search { background: linear-gradient(135deg, #6a1b9a, #8e24aa); color: white; }
+        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(106,27,154,0.3); }
+        .btn-reset { background: linear-gradient(135deg, #757575, #9e9e9e); color: white; }
+        .btn-reset:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(117,117,117,0.3); }
+
+        /* ========== 红事主题（默认） ========== */
+        .theme-red .book-container {
+            background: #fff5f5;
+            border-color: #FF3636;
+            box-shadow: 0 0 0 1px #ff7070, 0 0 0 4px #FF3636, 0 0 0 5px #ff7070, inset 0 0 30px rgba(255,54,54,0.03);
+        }
+        .theme-red .book-header { border-bottom-color: #FF3636; background: linear-gradient(180deg, #fff5f5, #ffe8e8); }
+        .theme-red .book-header h3 { color: #8b0000; }
+        .theme-red .book-col-name { color: #000; }
+        .theme-red .book-col-amount { color: #000; }
+        .theme-red .book-footer { border-top-color: #FF3636; background: linear-gradient(0deg, #fff5f5, #ffe8e8); }
+        .theme-red .stat-item { background: #fff5f5; border-color: #FF3636; }
+        .theme-red .stat-value { color: #8b0000; }
+        .theme-red .book-nav-btn { background: linear-gradient(135deg, #FF3636, #cc2a2a); border-color: #cc2a2a; color: white; }
+        .theme-red .book-nav-btn:hover { background: linear-gradient(135deg, #cc2a2a, #aa2020); }
+
+        /* ========== 白事主题 ========== */
+        .theme-white .book-container {
+            background: #f8f8f8;
+            border-color: #888;
+            box-shadow: 0 0 0 1px #bbb, 0 0 0 4px #888, 0 0 0 5px #bbb, inset 0 0 30px rgba(0,0,0,0.02);
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(0,0,0,0.02) 29px, rgba(0,0,0,0.02) 30px);
+        }
+        .theme-white .book-header { border-bottom-color: #888; background: linear-gradient(180deg, #f8f8f8, #eee); }
+        .theme-white .book-header h3 { color: #333; }
+        .theme-white .book-col-name { color: #222; }
+        .theme-white .book-col-amount { color: #222; }
+        .theme-white .book-footer { border-top-color: #888; background: linear-gradient(0deg, #f8f8f8, #eee); }
+        .theme-white .stat-item { background: #f8f8f8; border-color: #888; }
+        .theme-white .stat-value { color: #333; }
+        .theme-white .book-nav-btn { background: linear-gradient(135deg, #888, #666); border-color: #666; color: white; }
+        .theme-white .book-nav-btn:hover { background: linear-gradient(135deg, #666, #555); }
+
+        /* ========== 礼簿公共样式 ========== */
+        .book-container {
+            border: 3px solid;
+            border-radius: 4px;
+            padding: 0;
+            position: relative;
+        }
+        
+        .book-header { text-align: center; padding: 15px 20px; border-bottom: 2px solid; }
+        .book-header h3 { font-family: 'Ma Shan Zheng', cursive; font-size: 1.8em; margin: 0; }
+        .book-header .book-date { font-family: 'Ma Shan Zheng', cursive; font-size: 1.1em; color: #5a4a3a; margin-top: 5px; }
+        
+        .book-body { display: flex; min-height: 500px; }
+        .book-page { flex: 1; padding: 10px 5px; position: relative; }
+        .book-page-left { border-right: 2px dashed rgba(128,128,128,0.2); }
+        .book-columns { display: grid; grid-template-columns: repeat(8, 1fr); height: 100%; }
+        
+        .book-column {
+            writing-mode: vertical-rl; text-orientation: upright;
+            display: flex; flex-direction: row; align-items: center; justify-content: flex-start;
+            padding: 10px 2px; border-right: 1px solid rgba(0,0,0,0.08);
+            min-height: 460px; position: relative; cursor: pointer; transition: background 0.2s;
+        }
+        .theme-red .book-column:hover { background: rgba(255,54,54,0.05); }
+        .theme-white .book-column:hover { background: rgba(0,0,0,0.04); }
+        .book-column:nth-child(8) { border-right: none; }
+        
+        .book-col-name { font-family: 'Zhi Mang Xing', cursive; font-size: 2.8em; letter-spacing: 8px; line-height: 1.4; width: 1em; text-align: center; flex-shrink: 0; }
+        .book-col-amount { font-family: 'Zhi Mang Xing', cursive; font-size: 2.2em; letter-spacing: 5px; line-height: 1.4; width: 1em; flex-shrink: 0; }
+        .book-col-divider { width: 1px; height: 20px; background: rgba(0,0,0,0.15); margin: 8px 0; flex-shrink: 0; }
+        .book-col-remark { font-family: 'Ma Shan Zheng', cursive; font-size: 1.4em; color: #555; letter-spacing: 3px; line-height: 1.2; width: 1em; flex-shrink: 0; }
+        
+        .book-col-delete {
+            position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+            opacity: 0; transition: opacity 0.2s; font-size: 12px;
+            background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 3px;
+            padding: 3px 8px; cursor: pointer; writing-mode: horizontal-tb;
+        }
+        .book-column:hover .book-col-delete { opacity: 1; }
+        .book-col-empty { color: #ccc; font-family: 'Ma Shan Zheng', cursive; font-size: 1.6em; letter-spacing: 8px; opacity: 0.4; }
+        
+        .book-footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-top: 2px solid; font-family: 'Ma Shan Zheng', cursive; }
+        .book-footer-left { color: #333; font-size: 1.1em; }
+        .book-footer-right { color: #000; font-size: 1.2em; display: flex; align-items: center; gap: 8px; }
+        .book-footer-right .amount-cn { font-family: 'Ma Shan Zheng', cursive; }
+        .book-footer-right .amount-num { font-family: 'Microsoft YaHei', sans-serif; font-size: 0.8em; color: #666; }
+        
+        /* ========== 底部统计 ========== */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+        .stat-item { padding: 15px; border-radius: 8px; text-align: center; border: 2px solid; }
+        .stat-value { font-size: 1.8em; font-weight: bold; }
+        .stat-label { color: #5a4a3a; font-size: 0.9em; margin-top: 5px; }
+        
+        /* ========== 翻页 ========== */
+        .book-nav { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; }
+        .book-nav-btn { padding: 8px 20px; border: 2px solid; border-radius: 4px; font-family: 'Ma Shan Zheng', cursive; font-size: 1.2em; cursor: pointer; transition: all 0.3s; }
+        .book-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .book-nav-info { font-family: 'Ma Shan Zheng', cursive; font-size: 1.1em; color: #5a4a3a; }
+
+        .no-book-hint { text-align: center; padding: 60px 20px; color: #999; font-size: 1.2em; }
+
+        /* ========== 弹窗 ========== */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: #fffef8; border-radius: 12px; padding: 24px; min-width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+        .modal h3 { font-family: 'Ma Shan Zheng', cursive; color: #8b0000; margin-bottom: 16px; font-size: 1.5em; }
+        .modal label { display: block; margin-bottom: 4px; color: #5a4a3a; font-size: 14px; }
+        .modal input[type="text"], .modal input[type="date"] { width: 100%; padding: 8px 12px; border: 2px solid #d4af37; border-radius: 6px; font-size: 16px; margin-bottom: 12px; font-family: 'Ma Shan Zheng', cursive; }
+        .modal input:focus { outline: none; border-color: #8b0000; }
+
+        .theme-selector { display: flex; gap: 16px; margin-bottom: 16px; }
+        .theme-option { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 16px; border: 2px solid #ddd; border-radius: 8px; transition: all 0.2s; }
+        .theme-option:hover { border-color: #999; }
+        .theme-option.selected { border-color: #333; background: #f0f0f0; }
+        .theme-option .dot { width: 16px; height: 16px; border-radius: 50%; }
+        .theme-option .dot-red { background: #FF3636; }
+        .theme-option .dot-white { background: #fff; border: 2px solid #999; }
+        .theme-option span { font-size: 14px; }
+
+        .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+    </style>
+</head>
+
+<body>
+    <h1 id="main-title">曹家礼簿</h1>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="sidebar-title" id="sidebar-title">礼簿列表</div>
+            <ul class="sidebar-list" id="book-list"></ul>
+            <button class="btn-new-book" onclick="showNewBookModal()">+ 新增礼簿</button>
+        </div>
+
+        <div class="content" id="content-area">
+            <div class="no-book-hint" id="no-book-hint">请在左侧选择或新建一个礼簿</div>
+            <div id="book-content" style="display:none;">
+                <div class="input-bar">
+                    <input type="text" id="name" class="input-name" placeholder="姓名">
+                    <input type="number" id="amount" class="input-amount" placeholder="金额">
+                    <input type="text" id="remark" class="input-remark" placeholder="备注（可选）">
+                    <button class="btn btn-primary" onclick="addRecord()">添加</button>
+                    <button class="btn btn-secondary" onclick="clearForm()">清空</button>
+                </div>
+                <div class="input-bar">
+                    <input type="text" id="search-keyword" class="input-search" placeholder="名字/金额/备注">
+                    <button class="btn btn-search" onclick="searchRecords()">查询</button>
+                    <button class="btn btn-reset" onclick="resetSearch()">重置</button>
+                </div>
+
+                <div id="book-detail">
+                    <div class="book-container">
+                        <div class="book-header">
+                            <h3 id="book-title"></h3>
+                            <div class="book-date" id="book-date"></div>
+                        </div>
+                        <div class="book-body">
+                            <div class="book-page book-page-left"><div class="book-columns" id="book-left"></div></div>
+                            <div class="book-page"><div class="book-columns" id="book-right"></div></div>
+                        </div>
+                        <div class="book-footer">
+                            <div class="book-footer-left" id="book-footer-left"></div>
+                            <div class="book-footer-right" id="book-footer-right"></div>
+                        </div>
+                    </div>
+
+                    <div class="book-nav">
+                        <button class="book-nav-btn" id="prev-page" onclick="prevPage()">上一页</button>
+                        <span class="book-nav-info" id="page-info">第 1 页</span>
+                        <button class="book-nav-btn" id="next-page" onclick="nextPage()">下一页</button>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-item"><div class="stat-value" id="total-amount">0</div><div class="stat-label">总礼金（元）</div></div>
+                        <div class="stat-item"><div class="stat-value" id="total-count">0</div><div class="stat-label">记录数</div></div>
+                        <div class="stat-item"><div class="stat-value" id="avg-amount">0</div><div class="stat-label">平均礼金（元）</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="book-modal">
+        <div class="modal">
+            <h3 id="modal-title">新增礼簿</h3>
+            <label>礼簿名称</label>
+            <input type="text" id="modal-book-name" placeholder="如：曹佳佳结婚礼簿">
+            <label>记录日期</label>
+            <input type="date" id="modal-book-date">
+            <label style="margin-top:4px;">主题颜色</label>
+            <div class="theme-selector">
+                <div class="theme-option selected" data-theme="red" onclick="selectModalTheme('red')">
+                    <div class="dot dot-red"></div><span>红事（喜事）</span>
+                </div>
+                <div class="theme-option" data-theme="white" onclick="selectModalTheme('white')">
+                    <div class="dot dot-white"></div><span>白事（丧事）</span>
+                </div>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeBookModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveBook()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ========== 农历转换 ========== */
+        const lunarInfo=[0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,0x0d520];
+        const Gan=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+        const Zhi=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+        const Animals=['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+        const lunarMonthName=['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+        const lunarDayName=['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+
+        function lYearDays(y){let i,sum=348;for(i=0x8000;i>0x8;i>>=1)sum+=(lunarInfo[y-1900]&i)?1:0;return sum+leapDays(y);}
+        function leapMonth(y){return lunarInfo[y-1900]&0xf;}
+        function leapDays(y){if(leapMonth(y))return(lunarInfo[y-1900]&0x10000)?30:29;return 0;}
+        function monthDays(y,m){return(lunarInfo[y-1900]&(0x10000>>m))?30:29;}
+
+        function solarToLunar(y,m,d){
+            if(y<1900||y>2100)return null;
+            if(y===1900&&m===1&&d<31)return null;
+            let offset=Math.floor((new Date(y,m-1,d)-new Date(1900,0,31))/86400000);
+            let i,temp=0;
+            for(i=1900;i<2101&&offset>0;i++){temp=lYearDays(i);offset-=temp;}
+            if(offset<0){offset+=temp;i--;}
+            const year=i;const leap=leapMonth(i);let isLeap=false;
+            for(i=1;i<13&&offset>0;i++){
+                if(leap>0&&i===(leap+1)&&!isLeap){--i;isLeap=true;temp=leapDays(year);}
+                else{temp=monthDays(year,i);}
+                if(isLeap&&i===(leap+1))isLeap=false;
+                offset-=temp;
+            }
+            if(offset===0&&leap>0&&i===leap+1){if(isLeap)isLeap=false;else{isLeap=true;--i;}}
+            if(offset<0){offset+=temp;--i;}
+            const month=i;const day=offset+1;
+            return{year,month,day,isLeap,yearCn:Gan[(year-4)%10]+Zhi[(year-4)%12],monthCn:(isLeap?'闰':'')+lunarMonthName[month-1]+'月',dayCn:lunarDayName[day-1],animal:Animals[(year-4)%12]};
+        }
+
+        function getLunarDateString(dateStr){
+            if(!dateStr)return '';
+            const d=new Date(dateStr);
+            const lunar=solarToLunar(d.getFullYear(),d.getMonth()+1,d.getDate());
+            if(lunar)return `${lunar.yearCn}年(${lunar.animal}年) ${lunar.monthCn}${lunar.dayCn}`;
+            return dateStr;
+        }
+
+        /* ========== 数字转中文大写 ========== */
+        function numberToChinese(num){
+            const cnNums=['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];
+            const cnIntRadice=['','拾','佰','仟'];const cnIntUnits=['','万','亿','兆'];const cnDecUnits=['角','分','厘','毫'];
+            if(num===0)return '零元整';
+            const integerNum=Math.floor(num);const decimalNum=Math.round((num-integerNum)*100);
+            let chineseStr='';
+            if(integerNum>0){
+                const str=integerNum.toString();const groups=[];let temp=str;
+                while(temp.length>0){groups.unshift(temp.slice(-4).padStart(4,'0'));temp=temp.slice(0,-4);}
+                let needZero=false;
+                for(let g=0;g<groups.length;g++){
+                    const group=groups[g];let groupStr='';let groupHasValue=false;let lastWasZero=false;
+                    for(let i=0;i<4;i++){
+                        const digit=parseInt(group.charAt(i));const pos=3-i;
+                        if(digit===0){if(groupHasValue&&!lastWasZero)lastWasZero=true;}
+                        else{if(needZero||lastWasZero)groupStr+='零';groupStr+=cnNums[digit]+cnIntRadice[pos];groupHasValue=true;lastWasZero=false;needZero=false;}
+                    }
+                    if(groupHasValue){groupStr+=cnIntUnits[groups.length-1-g];chineseStr+=groupStr;}else{needZero=true;}
+                }
+                chineseStr+='元';
+            }
+            if(decimalNum>0){const decStr=decimalNum.toString().padStart(2,'0');for(let i=0;i<decStr.length&&i<2;i++){const n=parseInt(decStr.charAt(i));if(n!==0)chineseStr+=cnNums[n]+cnDecUnits[i];}}
+            else{chineseStr+='整';}
+            return chineseStr;
+        }
+
+        /* ========== 状态管理 ========== */
+        let currentBookId = null;
+        let currentBookDate = '';
+        let currentBookTheme = 'red';
+        let allBooks = [];
+        let records = [];
+        let currentPage = 1;
+        const PAGE_SIZE = 16;
+        let searchKeyword = '';
+        let editingBookId = null;
+        let modalTheme = 'red';
+
+        async function api(url, options) {
+            const res = await fetch(url, options);
+            return res.json();
+        }
+
+        /* ========== 主题切换 ========== */
+        function applyTheme(theme) {
+            const detail = document.getElementById('book-detail');
+            detail.className = 'theme-' + theme;
+            currentBookTheme = theme;
+            const title = document.getElementById('main-title');
+            const sidebarTitle = document.getElementById('sidebar-title');
+            if (theme === 'white') {
+                title.style.color = '#333';
+                title.style.textShadow = '2px 2px 4px rgba(0,0,0,0.1)';
+                sidebarTitle.style.color = '#333';
+                sidebarTitle.style.borderBottomColor = '#888';
+            } else {
+                title.style.color = '#8b0000';
+                title.style.textShadow = '2px 2px 4px rgba(0,0,0,0.2)';
+                sidebarTitle.style.color = '#8b0000';
+                sidebarTitle.style.borderBottomColor = '#d4af37';
+            }
+        }
+
+        /* ========== 礼簿列表 ========== */
+        async function loadBookList() {
+            allBooks = await api('/api/books');
+            const listEl = document.getElementById('book-list');
+            listEl.innerHTML = '';
+            allBooks.forEach(book => {
+                const theme = book.theme || 'red';
+                const li = document.createElement('li');
+                li.className = 'sidebar-item theme-' + theme + (book.id === currentBookId ? ' active' : '');
+                const lunarStr = getLunarDateString(book.date);
+                li.onclick = function() { selectBook(book.id); };
+                li.innerHTML = `
+                    <span class="sidebar-item-dot ${theme}"></span>
+                    <span class="sidebar-item-name">${book.name}</span>
+                    <span class="sidebar-item-date">${book.date} ${lunarStr}</span>
+                    <span class="sidebar-item-actions">
+                        <button title="编辑" onclick="event.stopPropagation();showEditBookModal(${book.id},'${book.name.replace(/'/g,"\\'")}','${book.date}','${theme}')">✎</button>
+                        <button class="btn-del" title="删除" onclick="event.stopPropagation();deleteBook(${book.id})">✕</button>
+                    </span>`;
+                listEl.appendChild(li);
+            });
+        }
+
+        async function selectBook(id) {
+            currentBookId = id;
+            currentPage = 1;
+            searchKeyword = '';
+            document.getElementById('search-keyword').value = '';
+            document.getElementById('no-book-hint').style.display = 'none';
+            document.getElementById('book-content').style.display = 'block';
+            const book = allBooks.find(b => b.id === id);
+            if (book) {
+                currentBookDate = book.date;
+                applyTheme(book.theme || 'red');
+            }
+            await loadBookList();
+            await loadRecords();
+        }
+
+        function showNewBookModal() {
+            editingBookId = null;
+            document.getElementById('modal-title').textContent = '新增礼簿';
+            document.getElementById('modal-book-name').value = '';
+            document.getElementById('modal-book-date').value = new Date().toISOString().split('T')[0];
+            selectModalTheme('red');
+            document.getElementById('book-modal').classList.add('show');
+        }
+
+        function showEditBookModal(id, name, date, theme) {
+            editingBookId = id;
+            document.getElementById('modal-title').textContent = '编辑礼簿';
+            document.getElementById('modal-book-name').value = name;
+            document.getElementById('modal-book-date').value = date;
+            selectModalTheme(theme || 'red');
+            document.getElementById('book-modal').classList.add('show');
+        }
+
+        function selectModalTheme(theme) {
+            modalTheme = theme;
+            document.querySelectorAll('.theme-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.theme === theme);
+            });
+        }
+
+        function closeBookModal() { document.getElementById('book-modal').classList.remove('show'); }
+
+        async function saveBook() {
+            const name = document.getElementById('modal-book-name').value.trim();
+            const date = document.getElementById('modal-book-date').value;
+            if (!name) { alert('请输入礼簿名称'); return; }
+            if (!date) { alert('请选择日期'); return; }
+
+            if (editingBookId) {
+                await api(`/api/books/${editingBookId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, date, theme: modalTheme })
+                });
+            } else {
+                await api('/api/books', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, date, theme: modalTheme })
+                });
+            }
+            closeBookModal();
+            if (editingBookId && editingBookId === currentBookId) {
+                await selectBook(editingBookId);
+            } else {
+                await loadBookList();
+            }
+        }
+
+        async function deleteBook(id) {
+            if (!confirm('确定要删除这个礼簿及其所有记录吗？')) return;
+            await api(`/api/books/${id}`, { method: 'DELETE' });
+            if (currentBookId === id) {
+                currentBookId = null;
+                document.getElementById('no-book-hint').style.display = 'block';
+                document.getElementById('book-content').style.display = 'none';
+            }
+            await loadBookList();
+        }
+
+        /* ========== 礼金记录 ========== */
+        async function loadRecords() {
+            if (!currentBookId) return;
+            const url = `/api/books/${currentBookId}/records` + (searchKeyword ? `?keyword=${encodeURIComponent(searchKeyword)}` : '');
+            records = await api(url);
+            renderRecordList();
+            updateStats();
+        }
+
+        async function addRecord() {
+            const name = document.getElementById('name').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const remark = document.getElementById('remark').value.trim();
+            if (!name) { alert('请输入姓名'); return; }
+            if (!amount || amount <= 0) { alert('请输入有效的礼金金额'); return; }
+            await api(`/api/books/${currentBookId}/records`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, amount, remark })
+            });
+            clearForm();
+            await loadRecords();
+        }
+
+        async function deleteRecord(id) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            await api(`/api/records/${id}`, { method: 'DELETE' });
+            await loadRecords();
+        }
+
+        function clearForm() { document.getElementById('name').value=''; document.getElementById('amount').value=''; document.getElementById('remark').value=''; }
+
+        async function updateStats() {
+            if (!currentBookId) return;
+            const stats = await api(`/api/books/${currentBookId}/stats`);
+            document.getElementById('total-amount').textContent = stats.total.toLocaleString();
+            document.getElementById('total-count').textContent = stats.count;
+            document.getElementById('avg-amount').textContent = stats.avg;
+        }
+
+        function searchRecords() { searchKeyword=document.getElementById('search-keyword').value.trim(); currentPage=1; loadRecords(); }
+        function resetSearch() { searchKeyword=''; document.getElementById('search-keyword').value=''; currentPage=1; loadRecords(); }
+
+        /* ========== 渲染 ========== */
+        function padName(name) {
+            if (name.length===1) return name+'\u3000\u3000';
+            if (name.length===2) return name.charAt(0)+'\u3000'+name.charAt(1);
+            return name;
+        }
+
+        function renderRecordList() {
+            const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIdx = (currentPage-1)*PAGE_SIZE;
+            const pageRecords = records.slice(startIdx, startIdx+PAGE_SIZE);
+
+            document.getElementById('book-left').innerHTML = renderColumns(pageRecords.slice(0,8), 8);
+            document.getElementById('book-right').innerHTML = renderColumns(pageRecords.slice(8,16), 8);
+
+            const book = allBooks.find(b => b.id === currentBookId);
+            if (book) document.getElementById('book-title').textContent = book.name;
+
+            const bookDateEl = document.getElementById('book-date');
+            if (currentBookDate) {
+                bookDateEl.textContent = currentBookDate + '（' + getLunarDateString(currentBookDate) + '）';
+            } else {
+                bookDateEl.textContent = '';
+            }
+
+            const total = records.reduce((sum,r)=>sum+r.amount,0);
+            const prefix = searchKeyword ? `查询到 ${records.length} 条记录` : `共 ${records.length} 条记录`;
+            document.getElementById('book-footer-left').textContent = prefix;
+            const totalChinese = numberToChinese(total).replace('整','');
+            document.getElementById('book-footer-right').innerHTML = `<span class="amount-cn">总计 ${totalChinese}</span><span class="amount-num">(${total.toLocaleString()}元)</span>`;
+
+            document.getElementById('page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+            document.getElementById('prev-page').disabled = currentPage<=1;
+            document.getElementById('next-page').disabled = currentPage>=totalPages;
+        }
+
+        function renderColumns(columnRecords, count) {
+            let html='';
+            for(let i=0;i<count;i++){
+                if(i<columnRecords.length){
+                    const r=columnRecords[i];
+                    const amountChinese=numberToChinese(r.amount).replace('整','');
+                    html+=`<div class="book-column"><div class="book-col-name">${padName(r.name)}</div><div class="book-col-divider"></div><div class="book-col-amount">${amountChinese}</div>${r.remark?'<div class="book-col-remark">'+r.remark+'</div>':''}<button class="book-col-delete" onclick="deleteRecord(${r.id})">删除</button></div>`;
+                } else {
+                    html+=`<div class="book-column"><div class="book-col-empty">虚位以待</div></div>`;
+                }
+            }
+            return html;
+        }
+
+        function prevPage(){if(currentPage>1){currentPage--;renderRecordList();}}
+        function nextPage(){currentPage++;renderRecordList();}
+
+        async function init() {
+            await loadBookList();
+            if (allBooks.length > 0) await selectBook(allBooks[0].id);
+        }
+
+        init();
+    </script>
+</body>
+</html>

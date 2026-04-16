@@ -1,0 +1,19 @@
+{
+  "name": "libu",
+  "version": "1.0.0",
+  "description": "礼簿记录系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "init-db": "node scripts/init-db.js",
+    "import-csv": "node scripts/import-csv.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "sql.js": "^1.11.0",
+    "express": "^4.21.0"
+  }
+}
