@@ -9,12 +9,16 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = 3000;
+const BASE = '/libu';
 const DB_PATH = path.join(__dirname, 'data', 'libu.db');
 const SECRET = 'libu_secret_key_2026';
 const upload = multer({ dest: path.join(__dirname, 'temp') });
+const router = express.Router();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(BASE, express.static(path.join(__dirname, 'public')));
+app.get(BASE, (req, res) => res.redirect(BASE + '/'));
+app.get(BASE + '/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 let db = null;
 const sessions = {};
@@ -96,7 +100,7 @@ function authMiddleware(req, res, next) {
 
 /* ========== 认证 API ========== */
 
-app.post('/api/auth/login', (req, res) => {
+router.post('/api/auth/login', (req, res) => {
     const { username, password, remember } = req.body;
     if (!username || !password) return res.status(400).json({ error: '请输入用户名和密码' });
     const users = queryAll('SELECT * FROM users WHERE username = ?', [username]);
@@ -107,13 +111,13 @@ app.post('/api/auth/login', (req, res) => {
     res.json({ token, username: users[0].username });
 });
 
-app.post('/api/auth/logout', (req, res) => {
+router.post('/api/auth/logout', (req, res) => {
     const token = req.headers['authorization']?.replace('Bearer ', '');
     if (token) delete sessions[token];
     res.json({ success: true });
 });
 
-app.get('/api/auth/check', (req, res) => {
+router.get('/api/auth/check', (req, res) => {
     const token = req.headers['authorization']?.replace('Bearer ', '');
     if (token && sessions[token]) {
         res.json({ loggedIn: true, username: sessions[token].username });
@@ -122,7 +126,7 @@ app.get('/api/auth/check', (req, res) => {
     }
 });
 
-app.put('/api/auth/password', (req, res) => {
+router.put('/api/auth/password', (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const token = req.headers['authorization']?.replace('Bearer ', '');
     if (!token || !sessions[token]) return res.status(401).json({ error: '请先登录' });
@@ -134,7 +138,7 @@ app.put('/api/auth/password', (req, res) => {
     res.json({ success: true });
 });
 
-app.post('/api/auth/register', (req, res) => {
+router.post('/api/auth/register', (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: '请输入用户名和密码' });
     if (username.length < 2 || username.length > 20) return res.status(400).json({ error: '用户名长度2-20个字符' });
@@ -148,13 +152,13 @@ app.post('/api/auth/register', (req, res) => {
     res.json({ success: true });
 });
 
-app.get('/api/auth/users', authMiddleware, (req, res) => {
+router.get('/api/auth/users', authMiddleware, (req, res) => {
     if (req.username !== 'admin') return res.status(403).json({ error: '仅管理员可访问' });
     const users = queryAll('SELECT id, username, created_at FROM users ORDER BY id ASC');
     res.json(users);
 });
 
-app.delete('/api/auth/users/:id', authMiddleware, (req, res) => {
+router.delete('/api/auth/users/:id', authMiddleware, (req, res) => {
     if (req.username !== 'admin') return res.status(403).json({ error: '仅管理员可操作' });
     const id = parseInt(req.params.id);
     const target = queryAll('SELECT * FROM users WHERE id = ?', [id]);
@@ -166,12 +170,12 @@ app.delete('/api/auth/users/:id', authMiddleware, (req, res) => {
 
 /* ========== 礼簿 API ========== */
 
-app.get('/api/books', authMiddleware, (req, res) => {
+router.get('/api/books', authMiddleware, (req, res) => {
     const books = queryAll('SELECT * FROM books ORDER BY id ASC');
     res.json(books);
 });
 
-app.post('/api/books', authMiddleware, (req, res) => {
+router.post('/api/books', authMiddleware, (req, res) => {
     const { name, date, theme } = req.body;
     if (!name || !date) return res.status(400).json({ error: '名称和日期不能为空' });
     queryRun('INSERT INTO books (name, date, theme) VALUES (?, ?, ?)', [name, date, theme || 'red']);
@@ -179,14 +183,14 @@ app.post('/api/books', authMiddleware, (req, res) => {
     res.json(books[0]);
 });
 
-app.put('/api/books/:id', authMiddleware, (req, res) => {
+router.put('/api/books/:id', authMiddleware, (req, res) => {
     const { name, date, theme } = req.body;
     queryRun('UPDATE books SET name = ?, date = ?, theme = ? WHERE id = ?', [name, date, theme || 'red', req.params.id]);
     const books = queryAll('SELECT * FROM books WHERE id = ?', [req.params.id]);
     res.json(books[0] || null);
 });
 
-app.delete('/api/books/:id', authMiddleware, (req, res) => {
+router.delete('/api/books/:id', authMiddleware, (req, res) => {
     queryRun('DELETE FROM records WHERE book_id = ?', [req.params.id]);
     queryRun('DELETE FROM books WHERE id = ?', [req.params.id]);
     res.json({ success: true });
@@ -194,7 +198,7 @@ app.delete('/api/books/:id', authMiddleware, (req, res) => {
 
 /* ========== 礼金记录 API ========== */
 
-app.get('/api/books/:bookId/records', authMiddleware, (req, res) => {
+router.get('/api/books/:bookId/records', authMiddleware, (req, res) => {
     const { keyword } = req.query;
     let sql = 'SELECT * FROM records WHERE book_id = ?';
     const params = [req.params.bookId];
@@ -207,7 +211,7 @@ app.get('/api/books/:bookId/records', authMiddleware, (req, res) => {
     res.json(queryAll(sql, params));
 });
 
-app.post('/api/books/:bookId/records', authMiddleware, (req, res) => {
+router.post('/api/books/:bookId/records', authMiddleware, (req, res) => {
     const { name, amount, remark } = req.body;
     if (!name || !amount) return res.status(400).json({ error: '姓名和金额不能为空' });
     const existing = queryAll('SELECT id FROM records WHERE book_id = ? AND name = ? AND amount = ? AND remark = ?',
@@ -218,12 +222,12 @@ app.post('/api/books/:bookId/records', authMiddleware, (req, res) => {
     res.json(queryAll('SELECT * FROM records ORDER BY id DESC LIMIT 1')[0]);
 });
 
-app.delete('/api/records/:id', authMiddleware, (req, res) => {
+router.delete('/api/records/:id', authMiddleware, (req, res) => {
     queryRun('DELETE FROM records WHERE id = ?', [req.params.id]);
     res.json({ success: true });
 });
 
-app.get('/api/books/:bookId/stats', authMiddleware, (req, res) => {
+router.get('/api/books/:bookId/stats', authMiddleware, (req, res) => {
     const rows = queryAll(
         'SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM records WHERE book_id = ?',
         [req.params.bookId]
@@ -235,7 +239,7 @@ app.get('/api/books/:bookId/stats', authMiddleware, (req, res) => {
 
 /* ========== Excel 导入 ========== */
 
-app.post('/api/books/:bookId/import', authMiddleware, upload.single('file'), (req, res) => {
+router.post('/api/books/:bookId/import', authMiddleware, upload.single('file'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: '请上传文件' });
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
@@ -293,7 +297,7 @@ app.post('/api/books/:bookId/import', authMiddleware, upload.single('file'), (re
 
 /* ========== Excel 导出 ========== */
 
-app.get('/api/books/:bookId/export', authMiddleware, (req, res) => {
+router.get('/api/books/:bookId/export', authMiddleware, (req, res) => {
     const book = queryAll('SELECT * FROM books WHERE id = ?', [req.params.bookId]);
     if (!book.length) return res.status(404).json({ error: '礼簿不存在' });
     const records = queryAll('SELECT * FROM records WHERE book_id = ? ORDER BY id ASC', [req.params.bookId]);
@@ -314,7 +318,7 @@ app.get('/api/books/:bookId/export', authMiddleware, (req, res) => {
 
 /* ========== 模板下载 ========== */
 
-app.get('/api/template', (req, res) => {
+router.get('/api/template', (req, res) => {
     const data = [
         ['姓名', '礼金', '备注'],
         ['张三', 200, '亲戚'],
@@ -349,10 +353,12 @@ app.get('/api/template', (req, res) => {
     res.send(buf);
 });
 
+app.use(BASE, router);
+
 loadDB().then(() => {
     if (!fs.existsSync(path.join(__dirname, 'temp'))) fs.mkdirSync(path.join(__dirname, 'temp'));
     app.listen(PORT, () => {
-        console.log(`礼簿服务器已启动: http://localhost:${PORT}`);
+        console.log(`礼簿服务器已启动: http://localhost:${PORT}${BASE}/`);
         console.log('默认账号: admin / admin123');
     });
 }).catch(console.error);

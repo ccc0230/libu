@@ -63,9 +63,9 @@
         .input-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
         .input-bar input { padding: 10px 12px; border: 2px solid #d4af37; border-radius: 8px; font-size: 16px; background: #fffef8; transition: border-color 0.3s; }
         .input-bar input:focus { outline: none; border-color: #8b0000; }
-        .input-bar .input-name { width: 140px; }
-        .input-bar .input-amount { width: 140px; }
-        .input-bar .input-remark { flex: 1; min-width: 120px; }
+        .input-bar .input-name { width: 120px; flex: none; }
+        .input-bar .input-amount { width: 120px; flex: none; }
+        .input-bar .input-remark { flex: 1; min-width: 60px; }
         .input-bar .input-search { flex: 1; min-width: 120px; }
         .btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.3s; }
         .btn-primary { background: linear-gradient(135deg, #8b0000, #a52a2a); color: white; }
@@ -163,13 +163,111 @@
         .theme-option span { font-size: 14px; }
         .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
         .import-result { margin-top: 12px; padding: 12px; border-radius: 6px; background: #f0f8f0; border: 1px solid #4caf50; font-size: 14px; }
+        .mobile-panel-header { display: none; }
+        .mobile-panel { margin-bottom: 0; border: 3px solid transparent; border-radius: 4px; }
+        .mobile-panel-body { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+        .input-bar { margin-bottom: 0; flex: 1; min-width: 0; flex-wrap: nowrap; }
+        .input-bar-buttons { display: flex; gap: 10px; flex: none; }
+        .input-bar-buttons .btn { width: 70px; flex: none; text-align: center; padding: 10px 0; }
+        .mobile-panel-query { display: none; }
+        .toolbar-bar .input-search { padding: 10px 12px; border: 2px solid #d4af37; border-radius: 8px; font-size: 16px; background: #fffef8; flex: 1; min-width: 120px; }
+        .toolbar-bar .input-search:focus { outline: none; border-color: #8b0000; }
+        .toolbar-search .btn-sm { width: 70px; flex: none; text-align: center; padding: 10px 0; font-size: 14px; }
+
+        /* ========== 移动端适配 ========== */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.6em; margin-bottom: 10px; }
+            .login-box { width: 100%; max-width: 400px; padding: 24px; }
+            .login-box h2 { font-size: 1.5em; }
+            .top-bar { flex-wrap: wrap; gap: 6px; }
+            .top-bar .btn { padding: 4px 10px; font-size: 12px; }
+            .main-layout { flex-direction: column; gap: 10px; }
+            .sidebar { width: 100%; }
+            .sidebar-title { margin-bottom: 6px; padding: 6px 12px; font-size: 1em; }
+            .sidebar-list { display: flex; overflow-x: auto; gap: 6px; margin-bottom: 8px; padding-bottom: 4px; max-height: none; -webkit-overflow-scrolling: touch; }
+            .sidebar-item { flex-shrink: 0; padding: 8px 12px; white-space: nowrap; flex-wrap: nowrap; }
+            .sidebar-item-date { display: none; }
+            .sidebar-item:hover .sidebar-item-actions { display: none; }
+            .sidebar-item-actions { display: flex; }
+            .mobile-panel { border: 1px solid #d4af37; border-radius: 8px; margin-bottom: 8px; background: #fffef8; overflow: hidden; }
+            .mobile-panel-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; font-weight: bold; color: #8b0000; cursor: pointer; background: linear-gradient(180deg, #fffef8, #f5f0e0); }
+            .mobile-panel-arrow { font-size: 12px; transition: transform 0.2s; }
+            .mobile-panel.collapsed .mobile-panel-arrow { transform: rotate(-90deg); }
+            .mobile-panel.collapsed .mobile-panel-body { display: none; }
+            .mobile-panel-body { display: block; }
+            .mobile-panel-query { display: block; }
+            .toolbar-search { display: none; }
+            .input-bar { margin-bottom: 0; }
+            .input-bar-buttons { margin-top: 6px; display: flex; gap: 10px; }
+            .input-bar-buttons .btn { flex: 1; }
+            .btn-new-book { padding: 6px; }
+            .input-bar { gap: 6px; }
+            .input-bar input { padding: 8px 10px; font-size: 14px; }
+            .input-bar .input-name { width: 100px; }
+            .input-bar .input-amount { width: 100px; }
+            .input-bar .input-remark { min-width: 80px; }
+            .input-bar .input-search { min-width: 80px; }
+            .btn { padding: 8px 14px; font-size: 13px; }
+            .btn-sm { padding: 5px 10px; font-size: 12px; }
+            .toolbar-bar { gap: 4px; }
+            .book-body { min-height: auto; flex-direction: column; }
+            .book-page-left { border-right: none; border-bottom: none; }
+            .book-page { padding: 0; }
+            .book-columns { display: flex; flex-direction: column; }
+            .book-column { writing-mode: horizontal-tb; text-orientation: initial; flex-direction: row; min-height: auto; padding: 10px 12px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); justify-content: center; gap: 4px; align-items: center; }
+            .book-column:last-child { border-bottom: none; }
+            .book-col-name { font-size: 1.3em; letter-spacing: 2px; width: auto; flex: 1; text-align: center; }
+            .book-col-divider { display: none; }
+            .book-col-amount { font-size: 1.2em; letter-spacing: 1px; width: auto; flex: 1; text-align: center; }
+            .book-col-remark { font-size: 1em; letter-spacing: 1px; width: auto; flex: 1; text-align: center; }
+            .book-col-delete { position: static; opacity: 1; transform: none; font-size: 11px; padding: 2px 8px; flex-shrink: 0; }
+            .book-header h3 { font-size: 1.4em; }
+            .book-header .book-date { font-size: 0.95em; }
+            .book-footer { flex-direction: column; gap: 4px; padding: 8px 12px; font-size: 0.9em; }
+            .book-footer-right { font-size: 1em; flex-wrap: wrap; }
+            .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .stat-item { padding: 10px 6px; }
+            .stat-value { font-size: 1.3em; }
+            .stat-label { font-size: 0.75em; }
+            .book-nav { gap: 8px; }
+            .book-nav-btn { padding: 6px 14px; font-size: 1em; }
+            .modal { min-width: auto; width: 90%; max-width: 380px; padding: 16px; }
+            .modal-overlay { padding: 10px; }
+            .no-book-hint { padding: 30px 15px; font-size: 1em; }
+            .print-cover-title { font-size: 2.5em; }
+            .print-cover-date { font-size: 1.2em; }
+            .import-result { overflow-x: auto; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 6px; }
+            h1 { font-size: 1.3em; margin-bottom: 8px; }
+            .login-box { padding: 18px; }
+            .login-box h2 { font-size: 1.3em; margin-bottom: 16px; }
+            .login-box input[type="text"], .login-box input[type="password"] { padding: 10px; font-size: 16px; }
+            .login-box .login-btn { padding: 12px; font-size: 16px; }
+            .input-bar { flex-wrap: wrap; }
+            .input-bar input { width: 100% !important; }
+            .input-bar .input-name, .input-bar .input-amount, .input-bar .input-remark, .input-bar .input-search { width: 100% !important; min-width: 0; }
+            .input-bar .btn { width: 100%; }
+            .toolbar-bar { justify-content: center; }
+            .toolbar-bar .btn { flex: 1; text-align: center; min-width: 0; padding: 6px 4px; font-size: 11px; }
+            .book-col-name { font-size: 1.2em; }
+            .book-col-amount { font-size: 1.1em; }
+            .book-col-remark { font-size: 0.95em; }
+            .book-header h3 { font-size: 1.2em; }
+            .stats { grid-template-columns: 1fr; gap: 6px; }
+            .stat-value { font-size: 1.1em; }
+            .book-nav-btn { padding: 5px 10px; font-size: 0.9em; }
+        }
 
         /* ========== 打印样式 ========== */
         @media print {
             @page { size: landscape; margin: 8mm; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
-            #login-page, #main-page, .top-bar, .sidebar, .input-bar, .toolbar-bar, .book-nav, .stats, .book-col-delete, .no-book-hint, .modal-overlay, .btn-new-book { display: none !important; }
+            #login-page, #main-page, .sidebar, .mobile-panel, .toolbar-bar, .book-nav, .stats, .book-col-delete, .no-book-hint, .modal-overlay, .btn-new-book, #import-result { display: none !important; }
             #print-area { display: block !important; }
             .print-page { break-after: page !important; break-inside: avoid !important; page-break-after: always !important; page-break-inside: avoid !important; overflow: hidden; }
             .print-page:last-child { break-after: auto !important; page-break-after: auto !important; }
@@ -253,27 +351,50 @@
             <div class="content" id="content-area">
                 <div class="no-book-hint" id="no-book-hint">请在左侧选择或新建一个礼簿</div>
                 <div id="book-content" style="display:none;">
-                    <div class="input-bar">
-                        <input type="text" id="name" class="input-name" placeholder="姓名">
-                        <input type="number" id="amount" class="input-amount" placeholder="金额">
-                        <input type="text" id="remark" class="input-remark" placeholder="备注（可选）">
-                        <button class="btn btn-primary" onclick="addRecord()">添加</button>
-                        <button class="btn btn-secondary" onclick="clearForm()">清空</button>
-                    </div>
-                    <div class="input-bar">
-                        <input type="text" id="search-keyword" class="input-search" placeholder="名字/金额/备注">
-                        <button class="btn btn-search" onclick="searchRecords()">查询</button>
-                        <button class="btn btn-reset" onclick="resetSearch()">重置</button>
-                    </div>
-                    <div class="toolbar-bar">
-                        <button class="btn btn-sm btn-green" onclick="exportExcel()">导出Excel</button>
-                        <button class="btn btn-sm btn-blue" onclick="document.getElementById('import-file').click()">导入Excel/CSV</button>
-                        <input type="file" id="import-file" accept=".xlsx,.xls,.csv" onchange="importFile(event)">
-                        <button class="btn btn-sm btn-orange" onclick="printBook()">打印/PDF</button>
-                        <a href="/api/template" class="btn btn-sm btn-secondary" style="text-decoration:none;">下载导入模板</a>
-                    </div>
-                    <div id="import-result" class="import-result" style="display:none;"></div>
                     <div id="book-detail">
+                        <div class="mobile-panel">
+                            <div class="mobile-panel-header" onclick="toggleMobilePanel(this)">
+                                <span>登记礼金</span><span class="mobile-panel-arrow">▼</span>
+                            </div>
+                            <div class="mobile-panel-body">
+                                <div class="input-bar">
+                                    <input type="text" id="name" class="input-name" placeholder="姓名">
+                                    <input type="number" id="amount" class="input-amount" placeholder="金额">
+                                    <input type="text" id="remark" class="input-remark" placeholder="备注（可选）">
+                                </div>
+                                <div class="input-bar input-bar-buttons">
+                                    <button class="btn btn-primary" onclick="addRecord()">添加</button>
+                                    <button class="btn btn-secondary" onclick="clearForm()">清空</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mobile-panel mobile-panel-query">
+                            <div class="mobile-panel-header" onclick="toggleMobilePanel(this)">
+                                <span>查询礼金</span><span class="mobile-panel-arrow">▼</span>
+                            </div>
+                            <div class="mobile-panel-body">
+                                <div class="input-bar">
+                                    <input type="text" id="search-keyword" class="input-search" placeholder="名字/金额/备注">
+                                </div>
+                                <div class="input-bar input-bar-buttons">
+                                    <button class="btn btn-search" onclick="searchRecords()">查询</button>
+                                    <button class="btn btn-reset" onclick="resetSearch()">重置</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="toolbar-bar toolbar-search">
+                            <input type="text" id="search-keyword-desktop" class="input-search" placeholder="名字/金额/备注" onkeydown="if(event.key==='Enter')searchRecordsDesktop()">
+                            <button class="btn btn-sm btn-search" onclick="searchRecordsDesktop()">查询</button>
+                            <button class="btn btn-sm btn-reset" onclick="resetSearch()">重置</button>
+                        </div>
+                        <div class="toolbar-bar toolbar-export">
+                            <button class="btn btn-sm btn-green" onclick="exportExcel()">导出Excel</button>
+                            <button class="btn btn-sm btn-blue" onclick="document.getElementById('import-file').click()">导入Excel/CSV</button>
+                            <input type="file" id="import-file" accept=".xlsx,.xls,.csv" onchange="importFile(event)">
+                            <button class="btn btn-sm btn-orange" onclick="printBook()">打印/PDF</button>
+                            <a href="/libu/api/template" class="btn btn-sm btn-secondary" style="text-decoration:none;">下载导入模板</a>
+                        </div>
+                        <div id="import-result" class="import-result" style="display:none;"></div>
                         <div class="book-container">
                             <div class="book-header">
                                 <h3 id="book-title"></h3>
@@ -377,6 +498,7 @@
         function numberToChinese(num){const cnNums=['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];const cnIntRadice=['','拾','佰','仟'];const cnIntUnits=['','万','亿','兆'];const cnDecUnits=['角','分','厘','毫'];if(num===0)return '零元整';const integerNum=Math.floor(num);const decimalNum=Math.round((num-integerNum)*100);let chineseStr='';if(integerNum>0){const str=integerNum.toString();const groups=[];let temp=str;while(temp.length>0){groups.unshift(temp.slice(-4).padStart(4,'0'));temp=temp.slice(0,-4);}let needZero=false;for(let g=0;g<groups.length;g++){const group=groups[g];let groupStr='';let groupHasValue=false;let lastWasZero=false;for(let i=0;i<4;i++){const digit=parseInt(group.charAt(i));const pos=3-i;if(digit===0){if(groupHasValue&&!lastWasZero)lastWasZero=true;}else{if(needZero||lastWasZero)groupStr+='零';groupStr+=cnNums[digit]+cnIntRadice[pos];groupHasValue=true;lastWasZero=false;needZero=false;}}if(groupHasValue){groupStr+=cnIntUnits[groups.length-1-g];chineseStr+=groupStr;}else{needZero=true;}}chineseStr+='元';}if(decimalNum>0){const decStr=decimalNum.toString().padStart(2,'0');for(let i=0;i<decStr.length&&i<2;i++){const n=parseInt(decStr.charAt(i));if(n!==0)chineseStr+=cnNums[n]+cnDecUnits[i];}}else{chineseStr+='整';}return chineseStr;}
 
         /* ========== 状态管理 ========== */
+        const BASE = '/libu';
         let authToken = localStorage.getItem('libu_token') || '';
         let currentBookId = null;
         let currentBookDate = '';
@@ -402,7 +524,7 @@
         async function checkAuth() {
             if (!authToken) { showLogin(); return; }
             try {
-                const res = await fetch('/api/auth/check', { headers: { 'Authorization': 'Bearer ' + authToken } });
+                const res = await fetch(BASE + '/api/auth/check', { headers: { 'Authorization': 'Bearer ' + authToken } });
                 const data = await res.json();
                 if (data.loggedIn) { showMain(data.username); } else { showLogin(); }
             } catch { showLogin(); }
@@ -414,7 +536,7 @@
             const remember = document.getElementById('login-remember').checked;
             if (!username || !password) { document.getElementById('login-error').textContent = '请输入用户名和密码'; return; }
             try {
-                const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, remember }) });
+                const res = await fetch(BASE + '/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, remember }) });
                 const data = await res.json();
                 if (data.error) { document.getElementById('login-error').textContent = data.error; return; }
                 authToken = data.token;
@@ -453,6 +575,20 @@
             document.getElementById('main-page').style.display = 'block';
             document.getElementById('user-info').textContent = '欢迎，' + username;
             document.getElementById('btn-user-mgmt').style.display = username === 'admin' ? 'inline-block' : 'none';
+            currentBookId = null;
+            allBooks = [];
+            records = [];
+            document.getElementById('book-list').innerHTML = '';
+            document.getElementById('book-left').innerHTML = '';
+            document.getElementById('book-right').innerHTML = '';
+            document.getElementById('book-title').textContent = '';
+            document.getElementById('book-date').textContent = '';
+            document.getElementById('book-footer-left').textContent = '';
+            document.getElementById('book-footer-right').innerHTML = '';
+            document.getElementById('page-info').textContent = '';
+            document.getElementById('no-book-hint').style.display = 'block';
+            document.getElementById('book-content').style.display = 'none';
+            document.getElementById('import-result').style.display = 'none';
             init();
         }
 
@@ -469,7 +605,7 @@
             if (!oldPwd || !newPwd) { alert('请填写完整'); return; }
             if (newPwd.length < 6) { alert('新密码至少6位'); return; }
             if (newPwd !== confirmPwd) { alert('两次密码不一致'); return; }
-            const data = await api('/api/auth/password', { method: 'PUT', body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd }) });
+            const data = await api(BASE + '/api/auth/password', { method: 'PUT', body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd }) });
             if (data.success) { alert('密码修改成功'); closePasswordModal(); } else { alert(data.error || '修改失败'); }
         }
 
@@ -483,7 +619,7 @@
             if (password.length < 6) { document.getElementById('register-error').textContent = '密码至少6位'; return; }
             if (password !== confirm) { document.getElementById('register-error').textContent = '两次密码不一致'; return; }
             try {
-                const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+                const res = await fetch(BASE + '/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
                 const data = await res.json();
                 if (data.error) { document.getElementById('register-error').textContent = data.error; return; }
                 alert('注册成功，请登录');
@@ -495,7 +631,7 @@
         /* ========== 账号管理 ========== */
         async function showUserMgmtModal() {
             document.getElementById('user-mgmt-modal').classList.add('show');
-            const users = await api('/api/auth/users');
+            const users = await api(BASE + '/api/auth/users');
             const tbody = document.getElementById('user-mgmt-list');
             tbody.innerHTML = '';
             users.forEach(u => {
@@ -508,7 +644,7 @@
 
         async function deleteUser(id) {
             if (!confirm('确定要删除该账号吗？')) return;
-            await api(`/api/auth/users/${id}`, { method: 'DELETE' });
+            await api(`${BASE}/api/auth/users/${id}`, { method: 'DELETE' });
             showUserMgmtModal();
         }
 
@@ -524,7 +660,7 @@
 
         /* ========== 礼簿列表 ========== */
         async function loadBookList() {
-            allBooks = await api('/api/books');
+            allBooks = await api(BASE + '/api/books');
             const listEl = document.getElementById('book-list');
             listEl.innerHTML = '';
             allBooks.forEach(book => {
@@ -551,7 +687,7 @@
 
         function showNewBookModal() { editingBookId = null; document.getElementById('modal-title').textContent = '新增礼簿'; document.getElementById('modal-book-name').value = ''; document.getElementById('modal-book-date').value = new Date().toISOString().split('T')[0]; selectModalTheme('red'); document.getElementById('book-modal').classList.add('show'); }
         function showEditBookModal(id, name, date, theme) { editingBookId = id; document.getElementById('modal-title').textContent = '编辑礼簿'; document.getElementById('modal-book-name').value = name; document.getElementById('modal-book-date').value = date; selectModalTheme(theme || 'red'); document.getElementById('book-modal').classList.add('show'); }
-        function selectModalTheme(theme) { modalTheme = theme; document.querySelectorAll('.theme-option').forEach(el => el.classList.toggle('selected', el.dataset.theme === theme)); }
+        function selectModalTheme(theme) { modalTheme = theme; document.querySelectorAll('.theme-option').forEach(el => el.classList.toggle('selected', el.dataset.theme === theme)); document.getElementById('modal-book-name').placeholder = theme === 'white' ? '如：张三仙逝礼簿' : '如：张三结婚礼簿'; }
         function closeBookModal() { document.getElementById('book-modal').classList.remove('show'); }
 
         async function saveBook() {
@@ -559,8 +695,8 @@
             const date = document.getElementById('modal-book-date').value;
             if (!name) { alert('请输入礼簿名称'); return; }
             if (!date) { alert('请选择日期'); return; }
-            if (editingBookId) { await api(`/api/books/${editingBookId}`, { method: 'PUT', body: JSON.stringify({ name, date, theme: modalTheme }) }); }
-            else { await api('/api/books', { method: 'POST', body: JSON.stringify({ name, date, theme: modalTheme }) }); }
+            if (editingBookId) { await api(`${BASE}/api/books/${editingBookId}`, { method: 'PUT', body: JSON.stringify({ name, date, theme: modalTheme }) }); }
+            else { await api(BASE + '/api/books', { method: 'POST', body: JSON.stringify({ name, date, theme: modalTheme }) }); }
             closeBookModal();
             if (editingBookId && editingBookId === currentBookId) await selectBook(editingBookId);
             else await loadBookList();
@@ -568,7 +704,7 @@
 
         async function deleteBook(id) {
             if (!confirm('确定要删除这个礼簿及其所有记录吗？')) return;
-            await api(`/api/books/${id}`, { method: 'DELETE' });
+            await api(`${BASE}/api/books/${id}`, { method: 'DELETE' });
             if (currentBookId === id) { currentBookId = null; document.getElementById('no-book-hint').style.display = 'block'; document.getElementById('book-content').style.display = 'none'; }
             await loadBookList();
         }
@@ -576,7 +712,7 @@
         /* ========== 礼金记录 ========== */
         async function loadRecords() {
             if (!currentBookId) return;
-            const url = `/api/books/${currentBookId}/records` + (searchKeyword ? `?keyword=${encodeURIComponent(searchKeyword)}` : '');
+            const url = `${BASE}/api/books/${currentBookId}/records` + (searchKeyword ? `?keyword=${encodeURIComponent(searchKeyword)}` : '');
             records = await api(url);
             renderRecordList();
             updateStats();
@@ -588,7 +724,7 @@
             const remark = document.getElementById('remark').value.trim();
             if (!name) { alert('请输入姓名'); return; }
             if (!amount || amount <= 0) { alert('请输入有效的礼金金额'); return; }
-            const data = await api(`/api/books/${currentBookId}/records`, { method: 'POST', body: JSON.stringify({ name, amount, remark }) });
+            const data = await api(`${BASE}/api/books/${currentBookId}/records`, { method: 'POST', body: JSON.stringify({ name, amount, remark }) });
             if (data.error) { alert(data.error); return; }
             clearForm();
             await loadRecords();
@@ -596,28 +732,33 @@
 
         async function deleteRecord(id) {
             if (!confirm('确定要删除这条记录吗？')) return;
-            await api(`/api/records/${id}`, { method: 'DELETE' });
+            await api(`${BASE}/api/records/${id}`, { method: 'DELETE' });
             await loadRecords();
         }
 
         function clearForm() { document.getElementById('name').value=''; document.getElementById('amount').value=''; document.getElementById('remark').value=''; }
 
+        function toggleMobilePanel(header) {
+            header.parentElement.classList.toggle('collapsed');
+        }
+
         async function updateStats() {
             if (!currentBookId) return;
-            const stats = await api(`/api/books/${currentBookId}/stats`);
+            const stats = await api(`${BASE}/api/books/${currentBookId}/stats`);
             document.getElementById('total-amount').textContent = stats.total.toLocaleString();
             document.getElementById('total-count').textContent = stats.count;
             document.getElementById('avg-amount').textContent = stats.avg;
         }
 
         function searchRecords() { searchKeyword = document.getElementById('search-keyword').value.trim(); currentPage = 1; loadRecords(); }
-        function resetSearch() { searchKeyword = ''; document.getElementById('search-keyword').value = ''; currentPage = 1; loadRecords(); }
+        function searchRecordsDesktop() { searchKeyword = document.getElementById('search-keyword-desktop').value.trim(); document.getElementById('search-keyword').value = searchKeyword; currentPage = 1; loadRecords(); }
+        function resetSearch() { searchKeyword = ''; document.getElementById('search-keyword').value = ''; document.getElementById('search-keyword-desktop').value = ''; currentPage = 1; loadRecords(); }
 
         /* ========== Excel 导入导出 ========== */
         async function exportExcel() {
             if (!currentBookId) return;
             try {
-                const res = await fetch(`/api/books/${currentBookId}/export`, { headers: { 'Authorization': 'Bearer ' + authToken } });
+                const res = await fetch(`${BASE}/api/books/${currentBookId}/export`, { headers: { 'Authorization': 'Bearer ' + authToken } });
                 const blob = await res.blob();
                 const cd = res.headers.get('Content-Disposition');
                 let filename = '礼簿.xlsx';
@@ -637,7 +778,7 @@
             const formData = new FormData();
             formData.append('file', file);
             try {
-                const res = await fetch(`/api/books/${currentBookId}/import`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + authToken }, body: formData });
+                const res = await fetch(`${BASE}/api/books/${currentBookId}/import`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + authToken }, body: formData });
                 const data = await res.json();
                 if (data.error) { alert('导入失败: ' + data.error); }
                 else {
@@ -776,7 +917,7 @@
                 if (i < columnRecords.length) {
                     const r = columnRecords[i];
                     const amountChinese = numberToChinese(r.amount).replace('整', '');
-                    html += `<div class="book-column"><div class="book-col-name">${padName(r.name)}</div><div class="book-col-divider"></div><div class="book-col-amount">${amountChinese}</div>${r.remark ? '<div class="book-col-remark">' + r.remark + '</div>' : ''}<button class="book-col-delete" onclick="deleteRecord(${r.id})">删除</button></div>`;
+                    html += `<div class="book-column"><div class="book-col-name">${padName(r.name)}</div><div class="book-col-divider"></div><div class="book-col-amount">${amountChinese}</div><div class="book-col-remark">${r.remark || ''}</div><button class="book-col-delete" onclick="deleteRecord(${r.id})">删除</button></div>`;
                 } else {
                     html += `<div class="book-column"><div class="book-col-empty"></div></div>`;
                 }
