@@ -40,11 +40,14 @@ async function loadDB() {
     )`);
     db.run(`CREATE TABLE IF NOT EXISTS books (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL DEFAULT 1,
         name TEXT NOT NULL,
         date TEXT NOT NULL,
         theme TEXT DEFAULT 'red',
-        created_at TEXT DEFAULT (datetime('now', 'localtime'))
+        created_at TEXT DEFAULT (datetime('now', 'localtime')),
+        FOREIGN KEY (user_id) REFERENCES users(id)
     )`);
+    try { db.run('ALTER TABLE books ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1'); } catch(e) {}
     db.run(`CREATE TABLE IF NOT EXISTS records (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         book_id INTEGER NOT NULL,
@@ -171,34 +174,40 @@ router.delete('/api/auth/users/:id', authMiddleware, (req, res) => {
 /* ========== 礼簿 API ========== */
 
 router.get('/api/books', authMiddleware, (req, res) => {
-    const books = queryAll('SELECT * FROM books ORDER BY id ASC');
+    const books = queryAll('SELECT * FROM books WHERE user_id = ? ORDER BY id ASC', [req.userId]);
     res.json(books);
 });
 
 router.post('/api/books', authMiddleware, (req, res) => {
     const { name, date, theme } = req.body;
     if (!name || !date) return res.status(400).json({ error: '名称和日期不能为空' });
-    queryRun('INSERT INTO books (name, date, theme) VALUES (?, ?, ?)', [name, date, theme || 'red']);
+    queryRun('INSERT INTO books (user_id, name, date, theme) VALUES (?, ?, ?, ?)', [req.userId, name, date, theme || 'red']);
     const books = queryAll('SELECT * FROM books ORDER BY id DESC LIMIT 1');
     res.json(books[0]);
 });
 
 router.put('/api/books/:id', authMiddleware, (req, res) => {
+    const existing = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+    if (existing.length === 0) return res.status(404).json({ error: '礼簿不存在或无权限' });
     const { name, date, theme } = req.body;
-    queryRun('UPDATE books SET name = ?, date = ?, theme = ? WHERE id = ?', [name, date, theme || 'red', req.params.id]);
+    queryRun('UPDATE books SET name = ?, date = ?, theme = ? WHERE id = ? AND user_id = ?', [name, date, theme || 'red', req.params.id, req.userId]);
     const books = queryAll('SELECT * FROM books WHERE id = ?', [req.params.id]);
     res.json(books[0] || null);
 });
 
 router.delete('/api/books/:id', authMiddleware, (req, res) => {
+    const existing = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+    if (existing.length === 0) return res.status(404).json({ error: '礼簿不存在或无权限' });
     queryRun('DELETE FROM records WHERE book_id = ?', [req.params.id]);
-    queryRun('DELETE FROM books WHERE id = ?', [req.params.id]);
+    queryRun('DELETE FROM books WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
     res.json({ success: true });
 });
 
 /* ========== 礼金记录 API ========== */
 
 router.get('/api/books/:bookId/records', authMiddleware, (req, res) => {
+    const book = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [req.params.bookId, req.userId]);
+    if (book.length === 0) return res.status(404).json({ error: '礼簿不存在或无权限' });
     const { keyword } = req.query;
     let sql = 'SELECT * FROM records WHERE book_id = ?';
     const params = [req.params.bookId];
@@ -212,6 +221,8 @@ router.get('/api/books/:bookId/records', authMiddleware, (req, res) => {
 });
 
 router.post('/api/books/:bookId/records', authMiddleware, (req, res) => {
+    const book = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [req.params.bookId, req.userId]);
+    if (book.length === 0) return res.status(404).json({ error: '礼簿不存在或无权限' });
     const { name, amount, remark } = req.body;
     if (!name || !amount) return res.status(400).json({ error: '姓名和金额不能为空' });
     const existing = queryAll('SELECT id FROM records WHERE book_id = ? AND name = ? AND amount = ? AND remark = ?',
@@ -223,11 +234,17 @@ router.post('/api/books/:bookId/records', authMiddleware, (req, res) => {
 });
 
 router.delete('/api/records/:id', authMiddleware, (req, res) => {
+    const record = queryAll('SELECT * FROM records WHERE id = ?', [req.params.id]);
+    if (record.length === 0) return res.status(404).json({ error: '记录不存在' });
+    const book = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [record[0].book_id, req.userId]);
+    if (book.length === 0) return res.status(404).json({ error: '无权限' });
     queryRun('DELETE FROM records WHERE id = ?', [req.params.id]);
     res.json({ success: true });
 });
 
 router.get('/api/books/:bookId/stats', authMiddleware, (req, res) => {
+    const book = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [req.params.bookId, req.userId]);
+    if (book.length === 0) return res.status(404).json({ error: '礼簿不存在或无权限' });
     const rows = queryAll(
         'SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM records WHERE book_id = ?',
         [req.params.bookId]
@@ -240,6 +257,8 @@ router.get('/api/books/:bookId/stats', authMiddleware, (req, res) => {
 /* ========== Excel 导入 ========== */
 
 router.post('/api/books/:bookId/import', authMiddleware, upload.single('file'), (req, res) => {
+    const book = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [req.params.bookId, req.userId]);
+    if (book.length === 0) return res.status(404).json({ error: '礼簿不存在或无权限' });
     if (!req.file) return res.status(400).json({ error: '请上传文件' });
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
@@ -298,8 +317,8 @@ router.post('/api/books/:bookId/import', authMiddleware, upload.single('file'), 
 /* ========== Excel 导出 ========== */
 
 router.get('/api/books/:bookId/export', authMiddleware, (req, res) => {
-    const book = queryAll('SELECT * FROM books WHERE id = ?', [req.params.bookId]);
-    if (!book.length) return res.status(404).json({ error: '礼簿不存在' });
+    const book = queryAll('SELECT * FROM books WHERE id = ? AND user_id = ?', [req.params.bookId, req.userId]);
+    if (!book.length) return res.status(404).json({ error: '礼簿不存在或无权限' });
     const records = queryAll('SELECT * FROM records WHERE book_id = ? ORDER BY id ASC', [req.params.bookId]);
     const total = records.reduce((s, r) => s + r.amount, 0);
     const data = [['序号', '姓名', '礼金', '备注']];
